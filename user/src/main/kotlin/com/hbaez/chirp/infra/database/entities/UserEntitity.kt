@@ -1,6 +1,6 @@
-package com.hbaez.user.infra.database.entities
+package com.hbaez.chirp.infra.database.entities
 
-import com.hbaez.user.domain.model.UserId
+import com.hbaez.chirp.domain.model.UserId
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

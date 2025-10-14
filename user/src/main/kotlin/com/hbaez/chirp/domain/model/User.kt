@@ -1,4 +1,4 @@
-package com.hbaez.user.domain.model
+package com.hbaez.chirp.domain.model
 
 import java.util.UUID
 
