@@ -26,6 +26,8 @@ dependencies {
     runtimeOnly(libs.jwt.impl)
     runtimeOnly(libs.jwt.jackson)
 
+    implementation(libs.jackson.module.kotlin)
+
     testImplementation(kotlin("test"))
 }
 
