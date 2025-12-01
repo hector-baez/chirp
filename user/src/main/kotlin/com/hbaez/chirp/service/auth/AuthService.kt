@@ -1,5 +1,6 @@
 package com.hbaez.chirp.service.auth
 
+import com.hbaez.chirp.domain.exception.EmailNotVerifiedException
 import com.hbaez.chirp.domain.exception.InvalidCredentialsException
 import com.hbaez.chirp.domain.exception.InvalidTokenException
 import com.hbaez.chirp.domain.exception.UserAlreadyExistsException
@@ -25,18 +26,22 @@ class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val emailVerificationService: EmailVerificationService
 ) {
     fun register(email: String, username: String, password: String): User {
+        val trimmedEmail = email.trim()
         val user = userRepository.findByEmailOrUsername(
-            email = email.trim(),
+            email = trimmedEmail,
             username = username.trim()
         )
         if(user != null) {
             throw UserAlreadyExistsException()
         }
 
-        val savedUser = userRepository.save(
+        val token = emailVerificationService.createVerificationToken(trimmedEmail)
+
+        val savedUser = userRepository.saveAndFlush(
             UserEntity(
                 email = email.trim(),
                 username = username.trim(),
@@ -56,6 +61,10 @@ class AuthService(
             throw InvalidCredentialsException()
         }
         // TODO: Check for verified email
+        if(!user.hasVerifiedEmail) {
+            throw EmailNotVerifiedException()
+        }
+
         return user.id?.let { userId ->
             val accessToken = jwtService.generateAccessToken(userId)
             val refreshToken = jwtService.generateRefreshToken(userId)
